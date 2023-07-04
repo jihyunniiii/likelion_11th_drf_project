@@ -16,7 +16,7 @@ class TrackSerializer(serializers.ModelSerializer):
     album = serializers.SerializerMethodField()
 
     def get_album(self, instance):
-        return instance.movie.name
+        return instance.album.title
     
     class Meta:
         model = Track
