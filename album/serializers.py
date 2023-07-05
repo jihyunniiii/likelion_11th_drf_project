@@ -5,8 +5,8 @@ class AlbumSerializer(serializers.ModelSerializer):
     tracks = serializers.SerializerMethodField(read_only=True)
 
     def get_tracks(self, instance):
-        serializer = TrackSerializer(instance.tracks, many=True)
-        return serializer.data
+        tracks = instance.tracks.values_list('title', flat=True)
+        return tracks
 
     class Meta:
         model = Album
