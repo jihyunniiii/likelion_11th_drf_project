@@ -8,7 +8,7 @@ from django.shortcuts import get_object_or_404
 
 # Create your views here.
 @api_view(['GET', 'POST'])
-def album_list_create(request):
+def album_read_create(request):
     if request.method == 'GET':
         albums = Album.objects.all()
         serializer = AlbumSerializer(albums, many=True)
@@ -21,7 +21,7 @@ def album_list_create(request):
             return Response(data=serializer.data)
         
 @api_view(['GET', 'PATCH', 'DELETE'])
-def album_detail_update_delete(request, album_id):
+def album_update_delete(request, album_id):
     album = get_object_or_404(Album, id=album_id)
 
     if request.method == 'GET':
