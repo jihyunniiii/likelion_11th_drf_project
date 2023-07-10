@@ -99,3 +99,11 @@ def track_update_delete(request, track_id):
             'deleted_track':track_id
         }
         return Response(data)
+    
+@api_view(['GET'])
+def find_tag(request, tag_name):
+    f_tag = get_object_or_404(Tag, name=tag_name)
+    if request.method == 'GET':
+        album = Album.objects.filter(tag__in = [f_tag])
+        serializer = AlbumSerializer(album, many=True)
+        return Response(data=serializer.data)
