@@ -1,8 +1,9 @@
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
+from rest_framework import status
 
 from .models import Album, Track, Tag
-from .serializers import AlbumSerializer, TrackSerializer
+from .serializers import AlbumSerializer, TrackSerializer, TagSerializer
 
 from django.shortcuts import get_object_or_404
 
@@ -100,10 +101,17 @@ def track_update_delete(request, track_id):
         }
         return Response(data)
     
-@api_view(['GET'])
-def find_tag(request, tag_name):
-    f_tag = get_object_or_404(Tag, name=tag_name)
+@api_view(['GET', 'POST'])
+def find_tag(request, tag_name = ''):
     if request.method == 'GET':
+        if not tag_name:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+        f_tag = get_object_or_404(Tag, name=tag_name)
+        album = Album.objects.filter(tag__in = [f_tag])
+        serializer = AlbumSerializer(album, many=True)
+        return Response(data=serializer.data)
+    elif request.method == 'POST':
+        f_tag = get_object_or_404(Tag, name=request.data['name'])
         album = Album.objects.filter(tag__in = [f_tag])
         serializer = AlbumSerializer(album, many=True)
         return Response(data=serializer.data)
