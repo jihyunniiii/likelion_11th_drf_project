@@ -9,10 +9,15 @@ class TagSerializer(serializers.ModelSerializer):
 
 class AlbumSerializer(serializers.ModelSerializer):
     tracks = serializers.SerializerMethodField(read_only=True)
+    tag = serializers.SerializerMethodField(read_only=True)
 
     def get_tracks(self, instance):
         tracks = instance.tracks.values_list('title', flat=True)
         return tracks
+    
+    def get_tag(self, instance):
+        tags = instance.tag.all()
+        return [tag.name for tag in tags]
 
     class Meta:
         model = Album

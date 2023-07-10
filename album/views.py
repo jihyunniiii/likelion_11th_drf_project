@@ -43,7 +43,19 @@ def album_update_delete(request, album_id):
         serializer = AlbumSerializer(instance=album, data=request.data)
         if serializer.is_valid():
             serializer.save()
-        return Response(serializer.data)
+            album = get_object_or_404(Album, id=serializer.data['id'])
+            album.tag.clear()
+            description = request.data['description']
+            tag_list = [word[1:] for word in description.split() if word.startswith('#')]
+            for tag in tag_list:
+                try:
+                    tag = get_object_or_404(Tag, name=tag)
+                except:
+                    tag = Tag(name=tag)
+                    tag.save()
+                album.tag.add(tag)
+            album.save()
+        return Response(AlbumSerializer(album).data)
     
     elif request.method == 'DELETE':
         album.delete()
