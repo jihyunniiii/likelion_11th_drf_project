@@ -1,7 +1,7 @@
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
 
-from .models import Album, Track
+from .models import Album, Track, Tag
 from .serializers import AlbumSerializer, TrackSerializer
 
 from django.shortcuts import get_object_or_404
@@ -18,7 +18,18 @@ def album_read_create(request):
         serializer = AlbumSerializer(data=request.data)
         if serializer.is_valid(raise_exception=True):
             serializer.save()
-            return Response(data=serializer.data)
+            description = request.data['description']
+            tag_list = [word[1:] for word in description.split() if word.startswith('#')]
+            for tag in tag_list:
+                try:
+                    tag = get_object_or_404(Tag, name=tag)
+                except:
+                    tag = Tag(name=tag)
+                    tag.save()
+                album = get_object_or_404(Album, id=serializer.data['id'])
+                album.tag.add(tag)
+            album.save()
+            return Response(data=AlbumSerializer(album).data)
         
 @api_view(['GET', 'PATCH', 'DELETE'])
 def album_update_delete(request, album_id):
